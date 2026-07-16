@@ -2,8 +2,9 @@ const supabase = require('../services/supabase');
 
 const createTemplate = async (req, res, next) => {
   try {
-    const { userId, name, subject_template, body_template } = req.body;
-    if (!userId || !name || !subject_template || !body_template) {
+    const { name, subject_template, body_template } = req.body;
+    const userId = req.user.id;
+    if (!name || !subject_template || !body_template) {
       return res.status(400).json({ error: 'Missing fields' });
     }
 
@@ -18,8 +19,7 @@ const createTemplate = async (req, res, next) => {
 
 const listTemplates = async (req, res, next) => {
   try {
-    const { userId } = req.query;
-    if (!userId) return res.status(400).json({ error: 'userId required' });
+    const userId = req.user.id;
 
     const { data, error } = await supabase.from('templates').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (error) throw error;
@@ -30,7 +30,8 @@ const listTemplates = async (req, res, next) => {
 const updateTemplate = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId, name, subject_template, body_template } = req.body;
+    const { name, subject_template, body_template } = req.body;
+    const userId = req.user.id;
     
     const { data, error } = await supabase.from('templates').update({
       name, subject_template, body_template
@@ -44,7 +45,7 @@ const updateTemplate = async (req, res, next) => {
 const deleteTemplate = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId } = req.query;
+    const userId = req.user.id;
     const { error } = await supabase.from('templates').delete().eq('id', id).eq('user_id', userId);
     if (error) throw error;
     res.status(204).end();

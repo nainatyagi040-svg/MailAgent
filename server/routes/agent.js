@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const agentController = require('../controllers/agentController');
 const { checkRateLimit } = require('../middleware/rateLimiter');
+const { requireAuth } = require('../middleware/auth');
+
+// Apply auth middleware to all routes
+router.use(requireAuth);
 
 // Rate limiting: max 20 task requests per user per hour
 router.post('/task', checkRateLimit('agent_task', 20), agentController.generateTask);
@@ -14,5 +18,7 @@ router.post('/undo', agentController.undoSend);
 
 // Rate limiting for scheduling
 router.post('/schedule', checkRateLimit('agent_schedule', 50), agentController.scheduleTask);
+
+router.post('/reject', agentController.rejectDraft);
 
 module.exports = router;

@@ -2,8 +2,9 @@ const supabase = require('../services/supabase');
 
 const createContact = async (req, res, next) => {
   try {
-    const { userId, name, email, relationship_context } = req.body;
-    if (!userId || !name || !email) return res.status(400).json({ error: 'Missing fields' });
+    const { name, email, relationship_context } = req.body;
+    const userId = req.user.id;
+    if (!name || !email) return res.status(400).json({ error: 'Missing fields' });
 
     const { data, error } = await supabase.from('contacts').insert({
       user_id: userId, name, email, relationship_context
@@ -16,8 +17,7 @@ const createContact = async (req, res, next) => {
 
 const listContacts = async (req, res, next) => {
   try {
-    const { userId } = req.query;
-    if (!userId) return res.status(400).json({ error: 'userId required' });
+    const userId = req.user.id;
 
     const { data, error } = await supabase.from('contacts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (error) throw error;
@@ -28,7 +28,8 @@ const listContacts = async (req, res, next) => {
 const updateContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId, name, email, relationship_context } = req.body;
+    const { name, email, relationship_context } = req.body;
+    const userId = req.user.id;
     
     const { data, error } = await supabase.from('contacts').update({
       name, email, relationship_context
@@ -42,7 +43,7 @@ const updateContact = async (req, res, next) => {
 const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId } = req.query;
+    const userId = req.user.id;
     const { error } = await supabase.from('contacts').delete().eq('id', id).eq('user_id', userId);
     if (error) throw error;
     res.status(204).end();
@@ -50,3 +51,4 @@ const deleteContact = async (req, res, next) => {
 };
 
 module.exports = { createContact, listContacts, updateContact, deleteContact };
+

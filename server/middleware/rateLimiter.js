@@ -1,43 +1,44 @@
 const supabase = require('../services/supabase');
 
-const checkRateLimit = (actionType, maxLimitPerHour) => {
+const checkRateLimit = (actionType, limit) => {
   return async (req, res, next) => {
     try {
-      const { userId } = req.body;
+      const userId = req.user?.id;
       if (!userId) {
-        return res.status(400).json({ error: 'userId is required' });
+        return res.status(401).json({ error: 'Unauthorized: missing user id' });
       }
 
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString(); // 1 hour ago
 
-      // Find existing rate limit record for this hour
-      let { data, error } = await supabase
+      // Check current count
+      const { data: limits, error } = await supabase
         .from('rate_limits')
         .select('*')
         .eq('user_id', userId)
         .eq('action_type', actionType)
-        .gte('window_start', oneHourAgo)
-        .order('window_start', { ascending: false })
-        .limit(1)
-        .single();
+        .gte('window_start', windowStart);
 
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is "No rows found"
-        throw error;
+      if (error) throw error;
+
+      let currentCount = 0;
+      let recordId = null;
+
+      if (limits && limits.length > 0) {
+        currentCount = limits[0].count;
+        recordId = limits[0].id;
       }
 
-      if (data) {
-        if (data.count >= maxLimitPerHour) {
-          return res.status(429).json({ error: 'Rate limit exceeded. Try again later.' });
-        }
-        
-        // Increment
+      if (currentCount >= limit) {
+        return res.status(429).json({ error: `Rate limit exceeded for ${actionType}` });
+      }
+
+      // Increment count
+      if (recordId) {
         await supabase
           .from('rate_limits')
-          .update({ count: data.count + 1 })
-          .eq('id', data.id);
+          .update({ count: currentCount + 1 })
+          .eq('id', recordId);
       } else {
-        // Create new window
         await supabase
           .from('rate_limits')
           .insert({
@@ -49,10 +50,9 @@ const checkRateLimit = (actionType, maxLimitPerHour) => {
       }
 
       next();
-    } catch (err) {
-      console.error('Rate Limiter Error:', err);
-      // Fallback to allow if db fails, or could block. Better to block or pass based on policy.
-      next();
+    } catch (error) {
+      console.error('Rate Limiter Error:', error);
+      return res.status(503).json({ error: 'Rate limiting temporarily unavailable, please try again shortly' });
     }
   };
 };

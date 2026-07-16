@@ -7,22 +7,26 @@ import { InteractiveDemo } from './components/InteractiveDemo'
 import { FAQ } from './components/FAQ'
 import { FinalCTA } from './components/FinalCTA'
 import { Footer } from './components/Footer'
+import { Auth } from './components/Auth'
+
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavBar />
-      <main className="flex-1">
-        <Hero />
-        <SocialProof />
-        <HowItWorks />
-        <Features />
-        <InteractiveDemo />
-        <FAQ />
-        <FinalCTA />
-      </main>
-      <Footer />
-    </div>
+    <Auth>
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <main className="flex-1">
+          <Hero />
+          <SocialProof />
+          <HowItWorks />
+          <Features />
+          <InteractiveDemo />
+          <FAQ />
+          <FinalCTA />
+        </main>
+        <Footer />
+      </div>
+    </Auth>
   )
 }
 

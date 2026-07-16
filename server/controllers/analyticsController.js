@@ -2,8 +2,7 @@ const supabase = require('../services/supabase');
 
 const getAnalytics = async (req, res, next) => {
   try {
-    const { userId } = req.query;
-    if (!userId) return res.status(400).json({ error: 'userId required' });
+    const userId = req.user.id;
 
     // Total sent
     const { count: sentCount, error: sentError } = await supabase
