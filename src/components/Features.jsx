@@ -37,31 +37,51 @@ export function Features() {
   ]
 
   return (
-    <section id="features" className="py-24 px-4 bg-muted/30">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
-          <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4">Everything you need</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Powerful features wrapped in a beautifully simple interface.</p>
+    <section id="features" className="py-32 px-4 relative">
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="text-center mb-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white tracking-tight"
+          >
+            Everything you need
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-xl text-white/50 max-w-2xl mx-auto font-light"
+          >
+            Powerful features wrapped in a beautifully simple interface.
+          </motion.p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {features.map((feature, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ delay: i * 0.1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="h-full"
             >
-              <Card className="h-full border-border bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+              <Card className="h-full border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-lg hover:shadow-[0_20px_40px_-15px_rgba(124,92,255,0.15)] transition-all duration-300 rounded-3xl overflow-hidden relative group">
+                {/* Hover gradient glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                
+                <CardHeader className="pb-4 relative z-10">
+                  <div className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 group-hover:border-primary/30 transition-colors shadow-inner">
                     {feature.icon}
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle className="text-2xl text-white font-semibold">{feature.title}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">
+                <CardContent className="relative z-10">
+                  <p className="text-white/60 leading-relaxed text-[15px] font-light">
                     {feature.description}
                   </p>
                 </CardContent>

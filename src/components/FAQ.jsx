@@ -31,22 +31,42 @@ export function FAQ() {
   ]
 
   return (
-    <section className="py-24 px-4 bg-background">
-      <div className="container mx-auto max-w-3xl">
+    <section className="py-32 px-4 relative">
+      <div className="container mx-auto max-w-2xl relative z-10">
         <div className="text-center mb-16">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="font-serif text-3xl md:text-5xl font-bold mb-4 text-white tracking-tight"
+          >
+            Frequently Asked Questions
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-white/50"
+          >
+            Everything you need to know before you start.
+          </motion.p>
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl"
         >
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`}>
-                <AccordionTrigger className="text-left text-lg font-medium">{faq.question}</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+              <AccordionItem key={i} value={`item-${i}`} className="border-b border-white/10 last:border-0 px-2 group">
+                <AccordionTrigger className="text-left text-lg font-medium text-white/80 hover:text-white hover:no-underline transition-colors py-5 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-white/50 text-base leading-relaxed pb-6">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
