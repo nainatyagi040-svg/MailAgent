@@ -1,11 +1,11 @@
 # MailPilot — an AI agent that drafts and sends emails from a single natural-language instruction.
 
-[Live Demo](#)
+[Live Demo]()
 
 ## Screenshots
-![Hero Section](#)
-![Interactive Demo in Action](#)
-![Approval and Send Flow](#)
+![Hero Section]()
+![Interactive Demo in Action]()
+![Approval and Send Flow]()
 
 ## How it works
 User describes a task in natural language. The agent parses this via an LLM, resolves the contact information, and drafts the email accordingly. The user then reviews and approves the draft in a queue before sending. Once approved, the email is queued with a 30-second undo window before being dispatched.
