@@ -37,6 +37,7 @@ export function Auth({ children }) {
         alert('Check your email for the login link!')
       }
     } catch (error) {
+      console.error('Auth Error Details:', error)
       setError(error.message)
     }
   }
