@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Button } from './ui/button'
+import { scrollToDemo } from '../lib/scroll'
 
 export function FinalCTA() {
   return (
@@ -21,7 +22,7 @@ export function FinalCTA() {
           <p className="text-xl text-white/50 mb-10 max-w-xl mx-auto font-light leading-relaxed">
             Stop writing the same email twice. Let MailPilot handle it.
           </p>
-          <Button size="lg" className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-white text-lg px-10 h-14 w-full sm:w-auto shadow-[0_0_30px_rgba(124,92,255,0.4)] hover:shadow-[0_0_50px_rgba(124,92,255,0.6)] transition-all duration-300 hover:scale-105 border border-white/10">
+          <Button onClick={scrollToDemo} size="lg" className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-white text-lg px-10 h-14 w-full sm:w-auto shadow-[0_0_30px_rgba(124,92,255,0.4)] hover:shadow-[0_0_50px_rgba(124,92,255,0.6)] transition-all duration-300 hover:scale-105 border border-white/10">
             Get Started for Free
           </Button>
         </motion.div>

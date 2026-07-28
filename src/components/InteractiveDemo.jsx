@@ -27,11 +27,28 @@ export function InteractiveDemo() {
       timer = setInterval(() => {
         setCountdown((prev) => prev - 1)
       }, 1000)
-    } else if (countdown === 0) {
+    } else if (chatState === 'sent' && countdown === 0) {
       clearInterval(timer)
+      
+      const checkStatus = async () => {
+        try {
+          const res = await fetchWithAuth(`/agent/draft-status/${draft.id}`)
+          const data = await res.json()
+          if (data.status === 'failed') {
+            setErrorMsg('Failed to send email. Please check your Mailtrap configuration.')
+            setChatState('done')
+          } else {
+            setChatState('success')
+          }
+        } catch (err) {
+          setErrorMsg('Failed to verify email status.')
+          setChatState('done')
+        }
+      }
+      checkStatus()
     }
     return () => clearInterval(timer)
-  }, [chatState, countdown])
+  }, [chatState, countdown, draft])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -192,7 +209,7 @@ export function InteractiveDemo() {
   }
 
   return (
-    <section className="py-32 px-4 relative">
+    <section id="demo" className="py-32 px-4 relative">
       <div className="container mx-auto max-w-4xl text-center mb-16 relative z-10">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -305,19 +322,22 @@ export function InteractiveDemo() {
                           <Button type="submit" size="sm" className="bg-primary hover:bg-primary/90 text-white">Save</Button>
                         </form>
                       </motion.div>
-                    ) : chatState === 'sent' ? (
+                    ) : chatState === 'sent' || chatState === 'success' ? (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         <div className="text-sm font-medium text-green-400 mb-2 flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4" /> Draft approved! It will be sent in {countdown} seconds.
+                          <CheckCircle2 className="h-4 w-4" /> 
+                          {chatState === 'success' ? 'Email sent successfully!' : `Draft approved! It will be sent in ${countdown} seconds.`}
                         </div>
-                        {countdown > 0 ? (
+                        {countdown > 0 && chatState === 'sent' ? (
                           <div className="flex items-center gap-3 mt-4">
                             <Button size="sm" variant="outline" className="h-9 gap-2 bg-white/5 border-white/10 text-white hover:bg-white/10" onClick={handleUndo}>
                               <Undo className="h-3.5 w-3.5" /> Undo Send
                             </Button>
                           </div>
-                        ) : (
+                        ) : chatState === 'success' ? (
                           <div className="text-sm text-white/50 mt-2">The email has been successfully sent.</div>
+                        ) : (
+                          <div className="text-sm text-white/50 mt-2">Checking final status...</div>
                         )}
                       </motion.div>
                     ) : draft ? (

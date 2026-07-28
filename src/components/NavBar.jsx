@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './ui/button'
 import { Mail } from 'lucide-react'
+import { scrollToDemo } from '../lib/scroll'
 
 const navLinks = [
   { name: 'Features', href: '#features' },
@@ -58,7 +59,7 @@ export function NavBar() {
         </nav>
 
         <div className="flex items-center">
-          <Button className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-white px-6 font-medium shadow-[0_0_20px_rgba(124,92,255,0.3)] hover:shadow-[0_0_30px_rgba(124,92,255,0.5)] transition-all hover:scale-105 border border-white/10">
+          <Button onClick={scrollToDemo} className="rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-white px-6 font-medium shadow-[0_0_20px_rgba(124,92,255,0.3)] hover:shadow-[0_0_30px_rgba(124,92,255,0.5)] transition-all hover:scale-105 border border-white/10">
             Get Started
           </Button>
         </div>

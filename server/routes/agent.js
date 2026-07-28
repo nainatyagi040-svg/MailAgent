@@ -21,4 +21,6 @@ router.post('/schedule', checkRateLimit('agent_schedule', 50), agentController.s
 
 router.post('/reject', agentController.rejectDraft);
 
+router.get('/draft-status/:id', agentController.checkDraftStatus);
+
 module.exports = router;

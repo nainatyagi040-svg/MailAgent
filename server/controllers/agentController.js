@@ -107,6 +107,17 @@ const sendDraft = async (req, res, next) => {
         }
       } catch (err) {
         console.error('Scheduled send failed:', err);
+        // Update status to failed
+        await supabase
+          .from('drafts')
+          .update({ status: 'failed' })
+          .eq('id', draftId);
+          
+        await supabase.from('activity_log').insert({
+          user_id: userId,
+          draft_id: draftId,
+          action: 'failed'
+        });
       }
     }, 30000); // 30 seconds
 
@@ -235,10 +246,37 @@ const rejectDraft = async (req, res, next) => {
   }
 };
 
+const checkDraftStatus = async (req, res, next) => {
+  try {
+    const draftId = req.params.id;
+    const userId = req.user.id;
+
+    if (!draftId) {
+      return res.status(400).json({ error: 'draftId is required' });
+    }
+
+    const { data: draft, error } = await supabase
+      .from('drafts')
+      .select('status')
+      .eq('id', draftId)
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !draft) {
+      return res.status(404).json({ error: 'Draft not found' });
+    }
+
+    return res.status(200).json({ status: draft.status });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   generateTask,
   sendDraft,
   undoSend,
   scheduleTask,
-  rejectDraft
+  rejectDraft,
+  checkDraftStatus
 };

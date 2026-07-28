@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { NavBar } from './components/NavBar'
 import { Hero } from './components/Hero'
 import { SocialProof } from './components/SocialProof'
@@ -11,6 +12,12 @@ import { Auth } from './components/Auth'
 
 
 function App() {
+  useEffect(() => {
+    if (window.location.hash.includes('error=')) {
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+  }, [])
+
   return (
     <Auth>
       <div className="min-h-screen flex flex-col">

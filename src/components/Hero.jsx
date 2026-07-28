@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Button } from './ui/button'
 import { Terminal, Send, CheckCircle2, Mail, ArrowRight } from 'lucide-react'
+import { scrollToDemo } from '../lib/scroll'
 
 export function Hero() {
   const staggerContainer = {
@@ -48,7 +49,7 @@ export function Hero() {
           </motion.p>
           
           <motion.div variants={itemVariant} className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-24 w-full">
-            <button className="group relative flex items-center bg-gradient-to-r from-primary to-primary/80 text-white rounded-full p-1.5 pl-6 pr-1.5 shadow-[0_0_20px_rgba(124,92,255,0.2)] hover:shadow-[0_0_40px_rgba(124,92,255,0.5)] transition-all duration-300 hover:scale-105 border border-white/10">
+            <button onClick={scrollToDemo} className="group relative flex items-center bg-gradient-to-r from-primary to-primary/80 text-white rounded-full p-1.5 pl-6 pr-1.5 shadow-[0_0_20px_rgba(124,92,255,0.2)] hover:shadow-[0_0_40px_rgba(124,92,255,0.5)] transition-all duration-300 hover:scale-105 border border-white/10">
               <span className="font-medium text-[15px] mr-4">Try it free</span>
               <div className="bg-white/20 transition-colors p-2.5 rounded-full flex items-center justify-center backdrop-blur-sm">
                 <ArrowRight className="h-4 w-4" />
