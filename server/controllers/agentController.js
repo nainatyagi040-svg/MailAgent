@@ -1,6 +1,6 @@
 const supabase = require('../services/supabase');
 const openrouter = require('../services/openrouter');
-const mailtrap = require('../services/mailtrap');
+const emailService = require('../services/emailService');
 const { createDraftFromTask } = require('../services/draftService');
 
 const generateTask = async (req, res, next) => {
@@ -47,7 +47,7 @@ const sendDraft = async (req, res, next) => {
       .select('*')
       .eq('id', draftId)
       .eq('user_id', userId)
-      .in('status', ['pending_review', 'approved'])
+      .in('status', ['pending_review', 'undoing'])
       .single();
 
     if (fetchError || !draft) {
@@ -86,8 +86,8 @@ const sendDraft = async (req, res, next) => {
           .single();
         
         if (latestDraft && latestDraft.status === 'approved') {
-          // Fire send via Mailtrap
-          await mailtrap.sendEmail(latestDraft.to_email, latestDraft.subject, latestDraft.body);
+          // Fire send via email service
+          await emailService.sendEmail(latestDraft.to_email, latestDraft.subject, latestDraft.body);
           
           // Update status to sent
           await supabase
@@ -189,13 +189,36 @@ const scheduleTask = async (req, res, next) => {
     if (!taskText) {
       return res.status(400).json({ error: 'taskText is required' });
     }
+    
+    let nextRun = new Date();
+    
+    if (recurrenceRule) {
+      const rule = recurrenceRule.toLowerCase().trim();
+      if (!['daily', 'weekly', 'monthly'].includes(rule)) {
+        return res.status(400).json({ error: "Invalid recurrenceRule. Must be 'daily', 'weekly', or 'monthly'" });
+      }
+      
+      if (rule === 'daily') {
+        nextRun.setDate(nextRun.getDate() + 1);
+      } else if (rule === 'weekly') {
+        nextRun.setDate(nextRun.getDate() + 7);
+      } else if (rule === 'monthly') {
+        nextRun.setMonth(nextRun.getMonth() + 1);
+      }
+    } else if (followUpAfterDays) {
+      const days = parseInt(followUpAfterDays, 10);
+      if (isNaN(days) || days <= 0) {
+        return res.status(400).json({ error: 'followUpAfterDays must be a positive integer' });
+      }
+      nextRun.setDate(nextRun.getDate() + days);
+    }
 
     const { data, error } = await supabase.from('scheduled_tasks').insert({
       user_id: userId,
       task_text: taskText,
       recurrence_rule: recurrenceRule,
       follow_up_after_days: followUpAfterDays,
-      next_run_at: new Date().toISOString() // Or calculate based on recurrence rule / days
+      next_run_at: nextRun.toISOString()
     }).select().single();
 
     if (error) throw error;

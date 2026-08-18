@@ -7,13 +7,28 @@ const startScheduler = () => {
   cron.schedule('*/2 * * * *', async () => {
     try {
       const now = new Date().toISOString();
-      const { data: tasks, error } = await supabase
+      
+      // Step 1: Select active tasks due for execution
+      const { data: tasksToProcess, error: selectError } = await supabase
         .from('scheduled_tasks')
-        .select('*')
+        .select('id')
         .lte('next_run_at', now)
         .eq('status', 'active');
 
-      if (error) throw error;
+      if (selectError) throw selectError;
+      if (!tasksToProcess || tasksToProcess.length === 0) return;
+
+      const taskIds = tasksToProcess.map(t => t.id);
+
+      // Step 2: Atomically mark them as processing to prevent overlapping runs
+      const { data: tasks, error: updateError } = await supabase
+        .from('scheduled_tasks')
+        .update({ status: 'processing' })
+        .in('id', taskIds)
+        .eq('status', 'active')
+        .select('*');
+
+      if (updateError) throw updateError;
 
       for (const task of tasks) {
         // Handle recurring task logic
@@ -32,10 +47,11 @@ const startScheduler = () => {
             }
           } catch (err) {
             console.error(`Failed to create draft for task ${task.id}:`, err);
+            // On failure, we still reschedule. Real production systems might retry or mark failed.
           }
 
-          // Parse recurrence rule
-          let nextRun = new Date();
+          // Parse recurrence rule and calculate nextRun from the scheduled next_run_at, not now
+          let nextRun = new Date(task.next_run_at);
           let validRule = true;
           const rule = task.recurrence_rule.toLowerCase().trim();
           
@@ -50,9 +66,18 @@ const startScheduler = () => {
             validRule = false;
           }
 
+          // Catch up if the nextRun is still in the past
+          const currentTime = new Date().getTime();
+          while (nextRun.getTime() <= currentTime && validRule) {
+            if (rule === 'daily') nextRun.setDate(nextRun.getDate() + 1);
+            else if (rule === 'weekly') nextRun.setDate(nextRun.getDate() + 7);
+            else if (rule === 'monthly') nextRun.setMonth(nextRun.getMonth() + 1);
+          }
+
           if (validRule) {
             await supabase.from('scheduled_tasks').update({
-              next_run_at: nextRun.toISOString()
+              next_run_at: nextRun.toISOString(),
+              status: 'active'
             }).eq('id', task.id);
           } else {
             await supabase.from('scheduled_tasks').update({ status: 'completed' }).eq('id', task.id);

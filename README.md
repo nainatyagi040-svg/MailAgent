@@ -15,7 +15,7 @@ User describes a task in natural language. The agent parses this via an LLM, res
 - AI-drafted emails
 - Contact resolution
 - Approval queue before sending
-- 30-second undo window
+- 30-second undo window (Note: The timeout is currently kept in-memory. If the Node server restarts during this window, approved drafts must be manually re-approved or sent.)
 - Activity log / audit trail
 - Recurring tasks and follow-ups
 - Rate limiting
