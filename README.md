@@ -33,7 +33,7 @@ User describes a task in natural language. The agent parses this via an LLM, res
 - Express
 - Supabase (Postgres + Auth)
 - OpenRouter API
-- Mailtrap API
+- Nodemailer (Gmail)
 - node-cron
 
 ## Getting Started
@@ -60,8 +60,14 @@ To run this project locally:
 3. **Environment Setup:**
    - Copy `.env.example` to `.env` in the root directory and fill in your keys.
    - Copy `server/.env.example` to `server/.env` and fill in your keys.
+   - **Important:** Never commit your `.env` files or any real credentials to a public repository. The `.gitignore` is configured to ignore these files.
 
-4. **Run the development servers:**
+4. **Gmail Setup:**
+   - You need to generate an App Password in your Google Account security settings.
+   - Add your Gmail address and the App Password to `server/.env`.
+   - Do NOT put your real password in the README or any tracked files.
+
+5. **Run the development servers:**
    Run the backend (from the `server` directory):
    ```bash
    cd server
