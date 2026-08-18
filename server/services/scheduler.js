@@ -60,7 +60,14 @@ const startScheduler = () => {
           } else if (rule === 'weekly') {
             nextRun.setDate(nextRun.getDate() + 7);
           } else if (rule === 'monthly') {
-            nextRun.setMonth(nextRun.getMonth() + 1);
+            const originalDay = new Date(task.created_at).getDate();
+            const targetMonth = nextRun.getMonth() + 1;
+            nextRun.setDate(1); // prevent temp overflow
+            nextRun.setMonth(targetMonth);
+            nextRun.setDate(originalDay);
+            if (nextRun.getMonth() !== targetMonth % 12) {
+              nextRun.setDate(0);
+            }
           } else {
             console.warn(`Unrecognized recurrence rule '${rule}' for task ${task.id}. Skipping rescheduling.`);
             validRule = false;
@@ -71,7 +78,14 @@ const startScheduler = () => {
           while (nextRun.getTime() <= currentTime && validRule) {
             if (rule === 'daily') nextRun.setDate(nextRun.getDate() + 1);
             else if (rule === 'weekly') nextRun.setDate(nextRun.getDate() + 7);
-            else if (rule === 'monthly') nextRun.setMonth(nextRun.getMonth() + 1);
+            else if (rule === 'monthly') {
+              const originalDay = new Date(task.created_at).getDate();
+              const targetMonth = nextRun.getMonth() + 1;
+              nextRun.setDate(1);
+              nextRun.setMonth(targetMonth);
+              nextRun.setDate(originalDay);
+              if (nextRun.getMonth() !== targetMonth % 12) nextRun.setDate(0);
+            }
           }
 
           if (validRule) {
